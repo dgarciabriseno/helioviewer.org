@@ -166,6 +166,21 @@ var ZoomControls = Class.extend(
 
 
     /**
+     * Calculates the offset of the focus of the touch relative to the container being scaled.
+     * This allows us to make sure the portion the user is focusing on stays on screen during
+     * the pinch zoom.
+     * @param {Object} center {left, top} coordinates relative to the page
+     * @returns {Object} {left, top} coordinates relative to the scaled container
+     */
+    _getMovingContainerAnchor(center) {
+        let sandbox = document.getElementById('sandbox');
+        let container = document.getElementById('moving-container');
+        let x = center.left - parseInt(sandbox.style.left) - parseInt(container.style.left);
+        let y = center.left - parseInt(sandbox.style.top) - parseInt(container.style.top);
+        return {left: x, top: y};
+    }
+
+    /**
      * Enables pinch zoom handling
      * @author Daniel Garcia-Briseno
      */
@@ -190,7 +205,7 @@ var ZoomControls = Class.extend(
             reference_scale = current_scale;
         });
 
-        this.zoomer.addPinchUpdateListener((pinch_size) => {
+        this.zoomer.addPinchUpdateListener((pinch_size, center) => {
             // When the user pinches, get the pinch size as a proportion of the screen size.
             let pinch_power = Math.abs(pinch_size) / screen_size;
             // This factor translates to how much we should scale. If the user's pinch size is half the screen (0.5)
@@ -256,10 +271,13 @@ var ZoomControls = Class.extend(
                     }
                 }
             }
+            // Get the anchor point for the scale
+            let anchor = this._getMovingContainerAnchor(center);
             
-            // Apply the new css scale
+            // Apply the new css scale on the anchor point
             current_scale = css_scale;
             viewport.style.transform = "scale(" + css_scale + ")";
+            viewport.style.transformOrigin = anchor.left + "px " + anchor.top + "px";
         });
     }
 });

@@ -18,7 +18,8 @@
  *
  * You can register listeners to respond to these changes.
  * - addPinchStartListener(fn) fn will be called when the beginning of a pinch/stretch is detected
- * - addPinchUpdateListener(fn(pixels)) fn will be called when the user is pinching. The pinch size in pixels is given as a parameter
+ * - addPinchUpdateListener(fn(pixels, {left, top})) fn will be called when the user is pinching. The pinch size in pixels is given as a parameter
+ *      The position relative to the page is also given as a parameter (pageX, pageY) of center of the two touch events that make up the pinch
  * - addPinchEndListener(fn) fn will be called when less than 2 fingers are on the screen
  *   a negative value is a pinch, a positive value is a stretch
  * - resetReference() At any point in time you can reset what the detector considers the reference point (starting pinch difference)
@@ -148,8 +149,9 @@ class PinchDetector {
         // Get the difference between the current finger distance and the reference
         // point set by touchStart
         let touch_change = this._calculateDifferenceFromReference(touch_a, touch_b);
+        let center = this._calculatePinchCenter(touch_a, touch_b);
         // Fire the pinch change listener to the callbacks
-        this._onPinchUpdate(touch_change);
+        this._onPinchUpdate(touch_change, center);
     }
 
     /**
@@ -193,6 +195,17 @@ class PinchDetector {
      */
     _calculateDistance(dx, dy) {
         return Math.sqrt(dx*dx + dy*dy);
+    }
+
+    /**
+     * Calculates the center of the pinch via pageX/pageY
+     * @param {Touch} touch_a First touch point
+     * @param {Touch} touch_b Second touch point
+     */
+    _calculatePinchCenter(touch_a, touch_b) {
+        let x = (touch_b.pageX + touch_a.pageY) / 2;
+        let y = (touch_b.pageY + touch_a.pageY) / 2;
+        return {left: x, top: y};
     }
 
     resetReference() {
