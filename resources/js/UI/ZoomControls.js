@@ -172,13 +172,13 @@ var ZoomControls = Class.extend(
      * @param {Object} center {left, top} coordinates relative to the page
      * @returns {Object} {left, top} coordinates relative to the scaled container
      */
-    _getMovingContainerAnchor(center) {
+    _getMovingContainerAnchor: function (center) {
         let sandbox = document.getElementById('sandbox');
         let container = document.getElementById('moving-container');
         let x = center.left - parseInt(sandbox.style.left) - parseInt(container.style.left);
         let y = center.left - parseInt(sandbox.style.top) - parseInt(container.style.top);
         return {left: x, top: y};
-    }
+    },
 
     /**
      * Enables pinch zoom handling
