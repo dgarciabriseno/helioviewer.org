@@ -204,7 +204,7 @@ class PinchDetector {
      * @param {Touch} touch_b Second touch point
      */
     _calculatePinchCenter(touch_a, touch_b) {
-        let x = (touch_b.pageX + touch_a.pageY) / 2;
+        let x = (touch_b.pageX + touch_a.pageX) / 2;
         let y = (touch_b.pageY + touch_a.pageY) / 2;
         return {left: x, top: y};
     }
