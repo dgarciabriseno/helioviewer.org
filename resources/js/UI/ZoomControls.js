@@ -200,12 +200,17 @@ var ZoomControls = Class.extend(
         // as a percentage of the screen size.
         let screen_size = Math.hypot(screen.width, screen.height);
         
-        this.zoomer.addPinchStartListener(() => {
+        this.zoomer.addPinchStartListener((center) => {
             // When pinch starts, set the reference scale to whatever it the current scale is
             reference_scale = current_scale;
+
+            // Get the anchor point for the scale
+            let anchor = this._getMovingContainerAnchor(center);
+            // Set this as the anchor point on the image.
+            viewport.style.transformOrigin = anchor.left + "px " + anchor.top + "px";
         });
 
-        this.zoomer.addPinchUpdateListener((pinch_size, center) => {
+        this.zoomer.addPinchUpdateListener((pinch_size) => {
             // When the user pinches, get the pinch size as a proportion of the screen size.
             let pinch_power = Math.abs(pinch_size) / screen_size;
             // This factor translates to how much we should scale. If the user's pinch size is half the screen (0.5)
@@ -224,6 +229,7 @@ var ZoomControls = Class.extend(
                 css_scale = reference_scale * scale_factor;
             }
 
+/*
             // If the image scale is greater than 2x, then we need to trigger an update to load
             // a higher resolution image. For lower scales, don't care since the image is already
             // HD and zooming out doesn't change anything.
@@ -271,13 +277,11 @@ var ZoomControls = Class.extend(
                     }
                 }
             }
-            // Get the anchor point for the scale
-            let anchor = this._getMovingContainerAnchor(center);
+            */
             
             // Apply the new css scale on the anchor point
             current_scale = css_scale;
             viewport.style.transform = "scale(" + css_scale + ")";
-            viewport.style.transformOrigin = anchor.left + "px " + anchor.top + "px";
         });
     }
 });
