@@ -151,6 +151,8 @@ class PinchDetector {
         // Get the difference between the current finger distance and the reference
         // point set by touchStart
         let touch_change = this._calculateDifferenceFromReference(touch_a, touch_b);
+        // Fire the pinch change listener to the callbacks
+        this._onPinchUpdate(touch_change);
     }
 
     /**
