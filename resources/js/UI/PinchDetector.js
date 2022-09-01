@@ -76,11 +76,10 @@ class PinchDetector {
     /**
      * Executes pinch update listeners
      * @param {number} distance The amount the pinch has moved since pinch start
-     * @param {Object} {left, top} of the center of the touch
      */
-    _onPinchUpdate(distance, center) {
+    _onPinchUpdate(distance) {
         for (const fn of this._on_pinch_listeners) {
-            fn(distance, center);
+            fn(distance);
         }
     }
 
