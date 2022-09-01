@@ -172,12 +172,53 @@ var ZoomControls = Class.extend(
      * @param {Object} center {left, top} coordinates relative to the page
      * @returns {Object} {left, top} coordinates relative to the scaled container
      */
-    _getMovingContainerAnchor: function (center) {
+    _getMovingContainerAnchor: function (center, scale) {
         let sandbox = document.getElementById('sandbox');
-        let container = document.getElementById('moving-container');
-        let x = center.left - parseInt(sandbox.style.left) - parseInt(container.style.left);
-        let y = center.left - parseInt(sandbox.style.top) - parseInt(container.style.top);
+        let container_pos = $('#moving-container').position();
+
+        let x = center.left - parseInt(sandbox.style.left) - container_pos.left;
+        let y = center.top - parseInt(sandbox.style.top) - container_pos.top;
+        x = x / scale;
+        y = y / scale;
+        /** for visualizing clicks
+         * let div = document.createElement('div');
+         * div.style.width = "25px";
+         * div.style.height = "25px";
+         * div.style.position = "absolute";
+         * div.style.left = x + "px";
+         * div.style.top = y + "px";
+         * div.style.background = "purple";
+         * $('#moving-container')[0].appendChild(div);
+         */
+        // return {left: 0, top: 0};
         return {left: x, top: y};
+    },
+
+    /**
+     * Sets the anchor point on the viewport to the new anchor position
+     * This requires shifting the image so it appears seamless to the user.
+     */
+    _setViewportAnchor: function (viewport, anchor, scale) {
+        // Get the current anchor point. Adjust the position so the image does not
+        // appear to move when we set the new anchor point
+        if (viewport.style.transformOrigin != "") {
+            let origin_data = viewport.style.transformOrigin.split(' ');
+            let origin_left = parseInt(origin_data[0]);
+            let origin_top = parseInt(origin_data[1]);
+
+            // Get the viewports current x offset
+            let left = parseInt(viewport.style.left);
+            // Compute the new left position
+            let new_left = left + ((scale - 1) * (anchor.left - origin_left));
+
+            let top = parseInt(viewport.style.top);
+            let new_top = top + ((scale - 1) * (anchor.top - origin_top));
+            viewport.style.left = new_left + "px";
+            viewport.style.top = new_top + "px";
+        }
+
+        // Update the anchor position
+        viewport.style.transformOrigin = anchor.left + "px " + anchor.top + "px";
     },
 
     /**
@@ -205,9 +246,9 @@ var ZoomControls = Class.extend(
             reference_scale = current_scale;
 
             // Get the anchor point for the scale
-            let anchor = this._getMovingContainerAnchor(center);
+            let anchor = this._getMovingContainerAnchor(center, current_scale);
             // Set this as the anchor point on the image.
-            viewport.style.transformOrigin = anchor.left + "px " + anchor.top + "px";
+            this._setViewportAnchor(viewport, anchor, current_scale);
         });
 
         this.zoomer.addPinchUpdateListener((pinch_size) => {
