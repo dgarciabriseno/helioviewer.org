@@ -164,6 +164,63 @@ var ZoomControls = Class.extend(
 
     },
 
+    /**
+     * Calculates the offset of the focus of the touch relative to the container being scaled.
+     * This allows us to make sure the portion the user is focusing on stays on screen during
+     * the pinch zoom.
+     * @param {Object} center {left, top} coordinates relative to the page
+     * @returns {Object} {left, top} coordinates relative to the scaled container
+     */
+    _getMovingContainerAnchor: function (center, scale) {
+        let sandbox = document.getElementById('sandbox');
+        let container_pos = $('#moving-container').position();
+
+        let x = center.left - parseInt(sandbox.style.left) - container_pos.left;
+        let y = center.top - parseInt(sandbox.style.top) - container_pos.top;
+        x = x / scale;
+        y = y / scale;
+        /** for visualizing clicks 
+         let sandbox_pos = $('#sandbox').position();
+         let div = document.createElement('div');
+         div.style.width = "25px";
+         div.style.height = "25px";
+         div.style.position = "absolute";
+         div.style.left = (x)  + "px";
+         div.style.top = (y) + "px";
+         div.style.background = "purple";
+         div.style.transform = "translateX(-50%) translateY(-50%)";
+         $('#moving-container')[0].appendChild(div);
+         /**/
+        // return {left: 0, top: 0};
+        return {left: x, top: y};
+    },
+
+    /**
+     * Sets the anchor point on the viewport to the new anchor position
+     * This requires shifting the image so it appears seamless to the user.
+     */
+    _setViewportAnchor: function (viewport, anchor, scale) {
+        // Get the current anchor point. Adjust the position so the image does not
+        // appear to move when we set the new anchor point
+        if (viewport.style.transformOrigin != "") {
+            let origin_data = viewport.style.transformOrigin.split(' ');
+            let origin_left = parseInt(origin_data[0]);
+            let origin_top = parseInt(origin_data[1]);
+
+            // Get the viewports current x offset
+            let left = parseInt(viewport.style.left);
+            // Compute the new left position
+            let new_left = left + ((scale - 1) * (anchor.left - origin_left));
+
+            let top = parseInt(viewport.style.top);
+            let new_top = top + ((scale - 1) * (anchor.top - origin_top));
+            viewport.style.left = new_left + "px";
+            viewport.style.top = new_top + "px";
+        }
+
+        // Update the anchor position
+        viewport.style.transformOrigin = anchor.left + "px " + anchor.top + "px";
+    },
 
     /**
      * Enables pinch zoom handling
@@ -185,9 +242,13 @@ var ZoomControls = Class.extend(
         // as a percentage of the screen size.
         let screen_size = Math.hypot(screen.width, screen.height);
         
-        this.zoomer.addPinchStartListener(() => {
+        this.zoomer.addPinchStartListener((center) => {
             // When pinch starts, set the reference scale to whatever it the current scale is
             reference_scale = current_scale;
+            // Get the anchor point for the scale
+            this._anchor = this._getMovingContainerAnchor(center, current_scale);
+            // Set this as the anchor point on the image.
+            this._setViewportAnchor(viewport, this._anchor, current_scale);
         });
 
         this.zoomer.addPinchUpdateListener((pinch_size) => {
