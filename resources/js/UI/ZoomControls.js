@@ -324,9 +324,8 @@ var ZoomControls = Class.extend(
         let new_pos = this._getTargetPosition(viewport, starting_scale)
         // Shift the viewport now.
         this._onZoomInBtnClick();
-        setTimeout(() => {
-            this._updateViewportPosition(viewport, new_pos, new_anchor);
-        });
+        this._updateViewportPosition(viewport, new_pos, new_anchor);
+        this._anchor = new_anchor;
     },
 
     /**
