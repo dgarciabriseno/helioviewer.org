@@ -259,7 +259,7 @@ var ZoomControls = Class.extend(
     _getCurrentScale: function () {
         let container = document.getElementById('moving-container');
         if (container.style.transform != "") {
-            return parseFloat(container.style.transform.match(/scale\(([1-9\.]+)\)/)[1]);
+            return parseFloat(container.style.transform.match(/scale\(([0-9\.]+)\)/)[1]);
         } else {
             return 1;
         }
