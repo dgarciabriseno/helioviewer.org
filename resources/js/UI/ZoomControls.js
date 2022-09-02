@@ -246,9 +246,9 @@ var ZoomControls = Class.extend(
             reference_scale = current_scale;
 
             // Get the anchor point for the scale
-            let anchor = this._getMovingContainerAnchor(center, current_scale);
+            this._anchor = this._getMovingContainerAnchor(center, current_scale);
             // Set this as the anchor point on the image.
-            this._setViewportAnchor(viewport, anchor, current_scale);
+            this._setViewportAnchor(viewport, this._anchor, current_scale);
         });
 
         this.zoomer.addPinchUpdateListener((pinch_size) => {
@@ -270,7 +270,6 @@ var ZoomControls = Class.extend(
                 css_scale = reference_scale * scale_factor;
             }
 
-/*
             // If the image scale is greater than 2x, then we need to trigger an update to load
             // a higher resolution image. For lower scales, don't care since the image is already
             // HD and zooming out doesn't change anything.
@@ -287,6 +286,9 @@ var ZoomControls = Class.extend(
                     // Update the pinch detector to use whatever the current finger distance is as the
                     // new reference point
                     this.zoomer.resetReference();
+                    // Update the anchor to the new position for zooming in
+                    this._anchor = {left: this._anchor.left * 2, top: this._anchor.top * 2};
+                    this._setViewportAnchor(viewport, this._anchor, css_scale);
                 } else {
                     // If we can't zoom in any more, cap the zoom at 2.5.
                     // This was chosen experimentally and is an arbitrary value. In theory we could
@@ -297,6 +299,7 @@ var ZoomControls = Class.extend(
                 }
             }
 
+/*
             // Similar logic here for when the user is zooming out
             let zoom_out_threshold = 0.25;
             if (css_scale < zoom_out_threshold) {
