@@ -1,3 +1,16 @@
+// TODO: for debug only
+var zoomer;
+
+function create_focal_point(x, y) {
+    let d = document.createElement('div');
+    d.style.position = "absolute";
+    d.style.left = x + 'px';
+    d.style.top = y + 'px';
+    d.style.background = "lightgreen";
+    d.style.width = "10px";
+    d.style.height = "10px";
+    document.body.appendChild(d);
+}
 /**
  * @fileOverview Contains the class definition for an ZoomControls class.
  * @author <a href="mailto:jeff.stys@nasa.gov">Jeff Stys</a>
@@ -180,13 +193,14 @@ var ZoomControls = Class.extend(
         let y = center.top - parseInt(sandbox.style.top) - container_pos.top;
         x = x / scale;
         y = y / scale;
-        /** for visualizing clicks
+        /** for visualizing clicks 
+         let sandbox_pos = $('#sandbox').position();
          let div = document.createElement('div');
          div.style.width = "25px";
          div.style.height = "25px";
          div.style.position = "absolute";
-         div.style.left = x + "px";
-         div.style.top = y + "px";
+         div.style.left = (x)  + "px";
+         div.style.top = (y) + "px";
          div.style.background = "purple";
          div.style.transform = "translateX(-50%) translateY(-50%)";
          $('#moving-container')[0].appendChild(div);
@@ -231,17 +245,100 @@ var ZoomControls = Class.extend(
         viewport.style.transformOrigin = anchor.left + "px " + anchor.top + "px";
     },
 
+    _getSandboxPosition: function () {
+        let sandbox = document.getElementById('sandbox');
+        return {
+            left: parseFloat(sandbox.style.left),
+            top: parseFloat(sandbox.style.top)
+        };
+    },
+
+    /**
+     * Gets the current transform scale
+     */
+    _getCurrentScale: function () {
+        let container = document.getElementById('moving-container');
+        if (container.style.transform != "") {
+            return parseFloat(container.style.transform.match(/scale\(([1-9\.]+)\)/)[1]);
+        } else {
+            return 1;
+        }
+    },
+
+    /**
+     * Computes the target transform origin for the given scale based on
+     * knowning the current and apparent position of the viewport
+     */
+    _getTargetOrigin: function (viewport, target_scale, original_scale) {
+        let left = parseFloat(viewport.style.left);
+        let top = parseFloat(viewport.style.top);
+        let apparent_x = left - (original_scale - 1) * this._anchor.left;
+        let apparent_y = top - (original_scale - 1) * this._anchor.top;
+
+        let new_x = - ((left - apparent_x) / (target_scale - 1))
+        let new_y = - ((top - apparent_y) / (target_scale - 1))
+        return {
+            left: new_x,
+            top: new_y
+        };
+    },
+
+    /**
+     * Gets the target viewport position after zooming
+     */
+    _getTargetPosition(viewport, original_scale) {
+        let left = parseFloat(viewport.style.left);
+        let top = parseFloat(viewport.style.top);
+        // position which accounts for css scaling
+        let apparent_x = left - (original_scale - 1) * this._anchor.left;
+        let apparent_y = top - (original_scale - 1) * this._anchor.top;
+        let new_x = (2 * apparent_x) - left;
+        let new_y = (2 * apparent_y) - top;
+        return {
+            left: new_x,
+            top: new_y
+        };
+    },
+
+    /**
+     * Updates the viewport's position for zoom, needs to account for
+     * the shifting sandbox
+     */
+    _updateViewportPosition: function (viewport, pos, anchor) {
+        let new_sandbox_pos = this._getSandboxPosition();
+        let shift_x = new_sandbox_pos.left - this._sandboxPos.left;
+        let shift_y = new_sandbox_pos.top - this._sandboxPos.top;
+        viewport.style.left = (pos.left - shift_x) + "px";
+        viewport.style.top = (pos.top - shift_y) + "px";
+        viewport.style.transformOrigin = anchor.left + "px " + anchor.top + "px";
+    },
+
+    /**
+     * When the zoom level changes, we need to shift the viewport to make sure
+     * it's in the right place when the new image loads
+     */
+    _updateViewportForNewScale: function (viewport, target_scale, starting_scale) {
+        // Compute new transform origin
+        let new_anchor = this._getTargetOrigin(viewport, target_scale, starting_scale);
+        // Get the new top/left position
+        let new_pos = this._getTargetPosition(viewport, starting_scale)
+        // Shift the viewport now.
+        this._onZoomInBtnClick();
+        setTimeout(() => {
+            this._updateViewportPosition(viewport, new_pos, new_anchor);
+        });
+    },
+
     /**
      * Enables pinch zoom handling
      * @author Daniel Garcia-Briseno
      */
     _enablePinchZoom: function () {
         this.zoomer = new PinchDetector("helioviewer-viewport");
+        // TODO: for debug only
+        zoomer = this.zoomer
         let viewport = document.getElementById("moving-container");
         let instance = this;
-
-        // Current scale is the actual CSS scale applied to the viewport
-        let current_scale = 1;
 
         // Reference scale is used when the user starts pinching, we'll use this to figure out what
         // the scale should be as they're pinching/stretching
@@ -250,10 +347,14 @@ var ZoomControls = Class.extend(
         // Get the screen size which we'll use to figure out how much the user has pinched
         // as a percentage of the screen size.
         let screen_size = Math.hypot(screen.width, screen.height);
-        
+
         this.zoomer.addPinchStartListener((center) => {
+            let current_scale = this._getCurrentScale();
             // When pinch starts, set the reference scale to whatever it the current scale is
             reference_scale = current_scale;
+            // Get the sandbox position, since the viewport shifts, we need to account
+            // for that
+            this._sandboxPos = this._getSandboxPosition();
 
             // Get the anchor point for the scale
             this._anchor = this._getMovingContainerAnchor(center, current_scale);
@@ -287,19 +388,15 @@ var ZoomControls = Class.extend(
             if (css_scale > zoom_in_threshold) {
                 // If we can zoom in more, then do it.
                 if (this._canZoomIn()) {
-                    this.zoomInBtn.click();
                     // White board math shows that to get the appropriate scale for the next image
                     // at the current zoom level, we use this formula.
-                    css_scale = zoom_in_threshold / 2;
+                    css_scale = css_scale / 2;
                     // Change the new pinch reference to this new zoom.
                     reference_scale = css_scale;
                     // Update the pinch detector to use whatever the current finger distance is as the
                     // new reference point
                     this.zoomer.resetReference();
-                    // Update the anchor to the new position for zooming in
-                    this._resetViewportForAnchor(viewport, this._anchor);
-                    this._anchor = {left: this._anchor.left * 2, top: this._anchor.top * 2};
-                    this._setViewportAnchor(viewport, this._anchor, css_scale);
+                    this._updateViewportForNewScale(viewport, css_scale, css_scale * 2);
                 } else {
                     // If we can't zoom in any more, cap the zoom at 2.5.
                     // This was chosen experimentally and is an arbitrary value. In theory we could
@@ -335,7 +432,6 @@ var ZoomControls = Class.extend(
             */
             
             // Apply the new css scale on the anchor point
-            current_scale = css_scale;
             viewport.style.transform = "scale(" + css_scale + ")";
         });
     }

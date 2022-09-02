@@ -222,20 +222,22 @@ var HelioviewerViewport = Class.extend(
      * Moves the viewport and triggers update function calls
      */
     onMouseMove: function (event, x, y) {
-        switch (event.type) {
-        case "mouseup":
-            this.movementHelper.mouseUp(event);
-            break;
-        case "mousedown":
-            this.movementHelper.mouseDown(event);
-            break;
-        case "mousemove":
-            this.movementHelper.mouseMove(event);
-            break;
-        default:
-            this.movementHelper.moveViewport(x, y);
-            break;
-        }
+        setTimeout(() => {
+            switch (event.type) {
+            case "mouseup":
+                this.movementHelper.mouseUp(event);
+                break;
+            case "mousedown":
+                this.movementHelper.mouseDown(event);
+                break;
+            case "mousemove":
+                this.movementHelper.mouseMove(event);
+                break;
+            default:
+                this.movementHelper.moveViewport(x, y);
+                break;
+            }
+        }, 5);
     },
 
     /**

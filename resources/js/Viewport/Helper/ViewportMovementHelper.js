@@ -46,8 +46,8 @@ var ViewportMovementHelper = Class.extend(
             this._cursorCSS = 'move';
         }
 
-        $(document).bind("pinch-begin", $.proxy(this._pinchZoomEnabled, this));
-        $(document).bind("pinch-end", $.proxy(this._pinchZoomDisabled, this));
+        // $(document).bind("pinch-begin", $.proxy(this._pinchZoomEnabled, this));
+        // $(document).bind("pinch-end", $.proxy(this._pinchZoomDisabled, this));
     },
 
     /**
