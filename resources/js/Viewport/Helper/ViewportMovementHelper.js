@@ -179,7 +179,7 @@ var ViewportMovementHelper = Class.extend(
         newSize = this._getDesiredSandboxDimensions();
         center  = this._getCenter();
 		
-        this.sandboxHelper.updateSandbox(center, newSize);
+        this.sandboxHelper.updateSandbox(center, newSize, this._usingPinchZoom);
     },
 
     /**
@@ -253,7 +253,10 @@ var ViewportMovementHelper = Class.extend(
 
         newCoords = this._viewportCoordsToMovingContainerCoords(newCenter);
 
-        this._moveTo(newCoords.x, newCoords.y);
+        // Pinch zoom expects the viewport to stay in place.
+        if (!this._usingPinchZoom) {
+            this._moveTo(newCoords.x, newCoords.y);
+        }
         this.mouseCoords.updateImageScale(imageScale);
     },
 
