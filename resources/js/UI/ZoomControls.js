@@ -270,54 +270,12 @@ var ZoomControls = Class.extend(
                 css_scale = reference_scale * scale_factor;
             }
 
-            // If the image scale is greater than 2x, then we need to trigger an update to load
-            // a higher resolution image. For lower scales, don't care since the image is already
-            // HD and zooming out doesn't change anything.
-            let zoom_in_threshold = 1.5;
-            if (css_scale > zoom_in_threshold) {
-                // If we can zoom in more, then do it.
-                if (this._canZoomIn()) {
-                    this.zoomInBtn.click();
-                    // White board math shows that to get the appropriate scale for the next image
-                    // at the current zoom level, we use this formula.
-                    css_scale = zoom_in_threshold / 2;
-                    // Change the new pinch reference to this new zoom.
-                    reference_scale = css_scale;
-                    // Update the pinch detector to use whatever the current finger distance is as the
-                    // new reference point
-                    this.zoomer.resetReference();
-                } else {
-                    // If we can't zoom in any more, cap the zoom at 2.5.
-                    // This was chosen experimentally and is an arbitrary value. In theory we could
-                    // let the user zoom forever down to the individual pixel, but that's not helpful.
-                    if (css_scale > 2.5) {
-                        css_scale = 2.5;
-                    }
-                }
+            if (css_scale > 2.5) {
+                css_scale = 2.5;
+            } else if (css_scale < 0.25) {
+                css_scale = 0.25;
             }
 
-            // Similar logic here for when the user is zooming out
-            let zoom_out_threshold = 0.25;
-            if (css_scale < zoom_out_threshold) {
-                // If we can zoom out, then go ahead and update the zoom out scale
-                if (this._canZoomOut()) {
-                    this.zoomOutBtn.click();
-                    // White board math shows that to get the appropriate scale for the next image
-                    // at the current zoom level, we use this formula.
-                    css_scale = zoom_out_threshold * 2;
-                    // Change the new pinch reference to this new zoom.
-                    reference_scale = css_scale;
-                    // Update the pinch detector to use whatever the current finger distance is as the
-                    // new reference point
-                    this.zoomer.resetReference();
-                } else {
-                    // Limit minimum zoom
-                    if (css_scale < 0.25) {
-                        css_scale = 0.25;
-                    }
-                }
-            }
-            
             // Apply the new css scale
             current_scale = css_scale;
             viewport.style.transform = "scale(" + css_scale + ")";
