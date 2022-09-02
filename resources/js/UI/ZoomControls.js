@@ -181,17 +181,27 @@ var ZoomControls = Class.extend(
         x = x / scale;
         y = y / scale;
         /** for visualizing clicks
-         * let div = document.createElement('div');
-         * div.style.width = "25px";
-         * div.style.height = "25px";
-         * div.style.position = "absolute";
-         * div.style.left = x + "px";
-         * div.style.top = y + "px";
-         * div.style.background = "purple";
-         * $('#moving-container')[0].appendChild(div);
-         */
+         let div = document.createElement('div');
+         div.style.width = "25px";
+         div.style.height = "25px";
+         div.style.position = "absolute";
+         div.style.left = x + "px";
+         div.style.top = y + "px";
+         div.style.background = "purple";
+         div.style.transform = "translateX(-50%) translateY(-50%)";
+         $('#moving-container')[0].appendChild(div);
+         /**/
         // return {left: 0, top: 0};
         return {left: x, top: y};
+    },
+
+    /**
+     * When the image size changes, we need to recompute the position of the image
+     * to keep the anchor point centered on screen.
+     */
+    _resetViewportAnchor: function (viewport, anchor) {
+        viewport.style.left = (parseInt(viewport.style.left) - anchor.left) + "px"
+        viewport.style.top = (parseInt(viewport.style.top) - anchor.top) + "px"
     },
 
     /**
@@ -287,6 +297,7 @@ var ZoomControls = Class.extend(
                     // new reference point
                     this.zoomer.resetReference();
                     // Update the anchor to the new position for zooming in
+                    this._resetViewportForAnchor(viewport, this._anchor);
                     this._anchor = {left: this._anchor.left * 2, top: this._anchor.top * 2};
                     this._setViewportAnchor(viewport, this._anchor, css_scale);
                 } else {
