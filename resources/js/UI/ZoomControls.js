@@ -406,7 +406,6 @@ var ZoomControls = Class.extend(
                 }
             }
 
-/*
             // Similar logic here for when the user is zooming out
             let zoom_out_threshold = 0.25;
             if (css_scale < zoom_out_threshold) {
@@ -421,6 +420,7 @@ var ZoomControls = Class.extend(
                     // Update the pinch detector to use whatever the current finger distance is as the
                     // new reference point
                     this.zoomer.resetReference();
+                    this._updateViewportForNewScale(viewport, css_scale, css_scale / 2);
                 } else {
                     // Limit minimum zoom
                     if (css_scale < 0.25) {
@@ -428,7 +428,6 @@ var ZoomControls = Class.extend(
                     }
                 }
             }
-            */
             
             // Apply the new css scale on the anchor point
             viewport.style.transform = "scale(" + css_scale + ")";
