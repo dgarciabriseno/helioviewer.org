@@ -30,6 +30,7 @@ var ViewportMovementHelper = Class.extend(
         this.sandbox         = $("#sandbox");
         this.movingContainer = $("#moving-container");
         this.mouseCoords     = mouseCoords;
+        this._usingPinchZoom = false;
 
         // Initialize sandbox
         var center = this._getCenter();
@@ -44,6 +45,24 @@ var ViewportMovementHelper = Class.extend(
         } else {
             this._cursorCSS = 'move';
         }
+
+        $(document).bind("pinch-begin", $.proxy(this._pinchZoomEnabled, this));
+        $(document).bind("pinch-end", $.proxy(this._pinchZoomDisabled, this));
+    },
+
+    /**
+     * Event called when pinch zoom is detected. Pinch zooming changes how
+     * the viewport must be updated to accomodate CSS scaling transforms.
+     * Most of this logic is handled in UI/ZoomControls.js, this flag disables
+     * certain viewport movements that are handled by Zoom controls, but are
+     * needed for normal zooming.
+     */
+    _pinchZoomEnabled: function () {
+        this._usingPinchZoom = true;
+    },
+
+    _pinchZoomDisabled: function () {
+        this._usingPinchZoom = false;
     },
 
     /**
@@ -234,11 +253,7 @@ var ViewportMovementHelper = Class.extend(
 
         newCoords = this._viewportCoordsToMovingContainerCoords(newCenter);
 
-        // TODO: Need to see if this has any adverse effect on creating screenshots
-        //       since the container isn't shifted. However, the calculations are wrong
-        //       anyway because this leads to the sun's center moving away from where it
-        //       was before the zoom
-        // this._moveTo(newCoords.x, newCoords.y);
+        this._moveTo(newCoords.x, newCoords.y);
         this.mouseCoords.updateImageScale(imageScale);
     },
 
