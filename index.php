@@ -1825,6 +1825,7 @@ if(isset($_SERVER['HTTP_USER_AGENT'])) {
 
 
 	<!-- Viewport -->
+	<div id="openseadragon-viewport" style="width: 100vw; height: 100vh;"></div>
 	<div id="helioviewer-viewport-container-outer" class="user-select-none">
 		<div id="helioviewer-viewport-container-inner">
 			<div id="helioviewer-viewport">
@@ -1871,6 +1872,8 @@ if(isset($_SERVER['HTTP_USER_AGENT'])) {
 	<script src="/resources/lib/mediaelement/build/mediaelement-and-player.min.js" type="text/javascript" language="javascript"></script>
 
 	<script src="/resources/js/dist/HelioviewerModules.js?v=<?=filemtime('resources/js/dist/HelioviewerModules.js')?>" type="text/javascript"></script>
+	<script src="/resources/lib/openseadragon/openseadragon-filtering.js" type="text/javascript" language="javascript"></script>
+	<script src="/resources/lib/openseadragon/colors.js" type="text/javascript" language="javascript"></script>
 
 	<?php
 	if ($debug){

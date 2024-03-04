@@ -15,8 +15,9 @@ var Config = Class.extend(
      * Default parameters
      */
      params: {
-        'back_end'                  : "https://api.helioviewer.org/",
-        'web_root_url'              : "https://helioviewer.org",
+        'back_end'                  : "http://localhost:8081/",
+        'image_server'              : "http://localhost:12345/iiif",
+        'web_root_url'              : "http://localhost:8080/",
         'build_num'                 : 700,
         'default_image_scale'       : 4.8408817,
         'ref_image_scale'           : 0.60511022,
@@ -25,7 +26,7 @@ var Config = Class.extend(
         'max_tile_layers'           : 5,
         'prefetch_size'             : 0,
         'news_url'                  : "https://helioviewer-project.github.io/",
-        'user_video_feed'           : "https://api.helioviewer.org/",
+        'user_video_feed'           : "http://localhost:8081/",
         'contact_email'             : "HelioViewerDevelopment@nasa.onmicrosoft.com",
         'regenerate_movie_threshold': 90,
         'enable_helios_backlinks'   : false,
@@ -92,6 +93,7 @@ var Config = Class.extend(
             'maxTileLayers'           : this.params["max_tile_layers"],
             'prefetchSize'            : this.params["prefetch_size"],
             'backEnd'                 : this.params["back_end"],
+            'imageServer'             : this.params["image_server"],
             'newsURL'                 : this.params["news_url"],
             'rootURL'                 : this.params["web_root_url"],
             'videoFeed'               : this.params["user_video_feed"],

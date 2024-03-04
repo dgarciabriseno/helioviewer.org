@@ -44,6 +44,11 @@ module.exports = {
                           globalName: "MediaManagerUI",
                           moduleLocalName: "MediaManagerUI",
                           override: true
+                        },
+                        {
+                          globalName: "OpenSeadragon",
+                          moduleLocalName: "OpenSeadragon",
+                          override: true
                         }
                       ]
                     }

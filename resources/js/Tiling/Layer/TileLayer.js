@@ -392,5 +392,9 @@ var TileLayer = Layer.extend(
      */
     getCurrentOffset: function () {
         return this._getOffset(this.viewportScale);
+    },
+
+    remove: function () {
+        this.domNode.remove();
     }
 });

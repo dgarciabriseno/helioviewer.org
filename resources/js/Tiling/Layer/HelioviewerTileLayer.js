@@ -30,7 +30,10 @@ var HelioviewerTileLayer = TileLayer.extend(
      * </div>
      */
     init: function (index, date, tileSize, viewportScale, tileVisibilityRange,
-        hierarchy, sourceId, name, visible, opacity, difference, diffCount, diffTime, baseDiffTime, layeringOrder, order) {
+        hierarchy, sourceId, name, visible, opacity, difference, diffCount, diffTime, baseDiffTime, layeringOrder, order, viewer) {
+
+        // Ref to openseadragon viewer
+        this.viewer = viewer;
 
 		// Create a random id which can be used to link tile layer with its corresponding tile layer accordion entry
         var id = "tile-layer-" + new Date().getTime();
@@ -56,6 +59,16 @@ var HelioviewerTileLayer = TileLayer.extend(
         this.image = new JP2Image(hierarchy, sourceId, date, difference, $.proxy(this.onLoadImage, this));
     },
 
+    getImageUrl: function() {
+        return helioviewer.serverSettings.imageServer + this.image.file + "/info.json";
+    },
+
+    remove: function() {
+        this.domNode.remove();
+        let layer = this.viewer.world.getItemAt(this.order);
+        this.viewer.world.removeItem(layer);
+    },
+
     /**
      * onLoadImage
      */
@@ -65,6 +78,13 @@ var HelioviewerTileLayer = TileLayer.extend(
 
         this._loadStaticProperties();
         this._updateDimensions();
+
+        // Add this image to the openseadragon viewport
+        let imageUrl = this.getImageUrl();
+        this.viewer.addTiledImage({
+            tileSource: imageUrl,
+            index: this.order
+        });
 
         if (this.visible) {
             this.tileLoader.reloadTiles(false);

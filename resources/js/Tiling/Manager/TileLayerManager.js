@@ -20,7 +20,7 @@ var TileLayerManager = LayerManager.extend(
      * @constructs
      * @description Creates a new TileLayerManager instance
      */
-    init: function (observationDate, dataSources, tileSize, viewportScale, maxTileLayers, savedLayers, urlLayers) {
+    init: function (observationDate, dataSources, tileSize, viewportScale, maxTileLayers, savedLayers) {
 
         this._super();
 

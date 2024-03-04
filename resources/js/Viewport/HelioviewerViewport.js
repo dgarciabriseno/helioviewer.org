@@ -36,6 +36,17 @@ var HelioviewerViewport = Class.extend(
                                           // source: Djafer, Thuillier
                                           // and Sofia (2008)
 
+        this.viewer = OpenSeadragon({
+            id: 'openseadragon-viewport',
+            crossOriginPolicy: "Anonymous",
+            prefixUrl: "https://cdn.jsdelivr.net/npm/openseadragon@4.1/build/openseadragon/images/"
+        });
+        this.viewer.setFilterOptions({
+            filters: {
+                // Custom processor which makes fully black pixels transparent.
+                processors: [TransparentBlackPixels]
+            }
+        })
         this.domNode   = $(this.id);
         this.outerNode = $(this.container);
 
@@ -73,7 +84,7 @@ var HelioviewerViewport = Class.extend(
             $(document).trigger("datasources-initialized", [dataSources]);
 
             // Initialize tile layers
-            self._tileLayerManager = new HelioviewerTileLayerManager(self.requestDate, self.dataSources, self.tileSize, self.imageScale, self.maxTileLayers, self.tileLayers);
+            self._tileLayerManager = new HelioviewerTileLayerManager(self.requestDate, self.dataSources, self.tileSize, self.imageScale, self.maxTileLayers, self.tileLayers, self.viewer);
 
             $(document).trigger("update-viewport");
         };

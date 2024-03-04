@@ -101,7 +101,7 @@ var LayerManager = Class.extend(
             layer = this._layers[index];
 
         if(typeof layer != 'undefined'){
-	        layer.domNode.remove();
+            layer.remove();
 	        this._layers = $.grep(this._layers, function (e, i) {
 	            return (e.id !== layer.id);
 	        });

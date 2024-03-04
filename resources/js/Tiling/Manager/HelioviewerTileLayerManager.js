@@ -19,9 +19,12 @@ var HelioviewerTileLayerManager = TileLayerManager.extend(
      * @constructs
      * @description Creates a new TileLayerManager instance
      */
-    init: function (observationDate, dataSources, tileSize, viewportScale, maxTileLayers, startingLayers, urlLayers) {
+    init: function (observationDate, dataSources, tileSize, viewportScale, maxTileLayers, startingLayers, viewer) {
 
-        this._super(observationDate, dataSources, tileSize, viewportScale, maxTileLayers, startingLayers, urlLayers);
+        this._super(observationDate, dataSources, tileSize, viewportScale, maxTileLayers, startingLayers);
+
+        // Ref to openseadragon viewer
+        this.viewer = viewer;
 
         // The order in which new layers are added
         this._queue = [ "SDO,AIA,304",
@@ -150,7 +153,7 @@ var HelioviewerTileLayerManager = TileLayerManager.extend(
                     this.tileVisibilityRange, params.uiLabels,
                     params.sourceId, params.nickname, params.visible,
                     opacity, params.difference, params.diffCount, params.diffTime, params.baseDiffTime,
-                    params.layeringOrder, this._layers.length)
+                    params.layeringOrder, this._layers.length, this.viewer)
         );
 
         this.save();
@@ -195,7 +198,7 @@ var HelioviewerTileLayerManager = TileLayerManager.extend(
                 self.tileSize, self.viewportScale, self.tileVisibilityRange,
                 params.uiLabels, params.sourceId, params.nickname,
                 params.visible, params.opacity, params.difference, params.diffCount, params.diffTime, params.baseDiffTime,
-                params.layeringOrder, j);
+                params.layeringOrder, j, self.viewer);
 
             self.addLayer(layer);
             j++;

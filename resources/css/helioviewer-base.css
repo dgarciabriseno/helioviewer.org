@@ -75,3 +75,12 @@ a.light:hover {
 .sr-only {
     visibility: hidden;
 }
+
+#openseadragon-viewport {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1;
+}
