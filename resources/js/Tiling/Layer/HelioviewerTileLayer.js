@@ -32,6 +32,8 @@ var HelioviewerTileLayer = TileLayer.extend(
     init: function (index, date, tileSize, viewportScale, tileVisibilityRange,
         hierarchy, sourceId, name, visible, opacity, difference, diffCount, diffTime, baseDiffTime, layeringOrder, order, viewer) {
 
+        this.sourceId = sourceId;
+
         /** @type {OpenSeadragon.Viewer} */
         this.viewer = viewer;
 
@@ -107,6 +109,7 @@ var HelioviewerTileLayer = TileLayer.extend(
             opacity: this.opacity / 100,
             success: (e) => {
                 this.layer = e.item;
+                this._applyColorTable();
             }
         });
 
@@ -144,6 +147,25 @@ var HelioviewerTileLayer = TileLayer.extend(
             preloader.as = "image";
             preloader.href = url;
             document.body.appendChild(preloader);
+        }
+    },
+
+    _applyColorTable: function () {
+        console.log(this.sourceId);
+        if (this.sourceId in ColorMaps) {
+            // Get existing filters
+            let filters = this.viewer.getFilters();
+            // Add new filter for this layer
+            filters.push({
+                items: this.layer,
+                processors: [
+                    OpenSeadragon.Filters.COLORMAP(ColorMaps[this.sourceId], 128)
+                ]
+            });
+            // Re-apply filters
+            this.viewer.setFilterOptions({
+                filters: filters
+            });
         }
     },
 
