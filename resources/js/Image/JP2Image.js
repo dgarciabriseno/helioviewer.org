@@ -13,7 +13,7 @@ var JP2Image = Class.extend(
     /**
      * @constructs
      */
-    init: function (hierarchy, sourceId, date, difference, onChange) {     
+    init: function (hierarchy, sourceId, date, difference, onChange) {
         this.hierarchy   = hierarchy;
         this.sourceId    = sourceId;
         this.requestDate = date;
@@ -28,12 +28,12 @@ var JP2Image = Class.extend(
      */
     _requestImage: function () {
         var params, dataType, source_id;
-        
+
         var switchSources = false;
 		if(outputType == 'minimal'){
 			switchSources = true;
 		}
-        
+
         params = {
             action:   'getClosestImage',
             sourceId: this.sourceId,
@@ -71,23 +71,22 @@ var JP2Image = Class.extend(
      * at the bottom-left corner of the image, not the top-left corner.
      */
     _onImageLoad: function (result) {
-        // Only load image if it is different form what is currently displayed
-        if(result.error){
-	        var jGrowlOpts = {
-	            sticky: true,
-	            header: "Just now"
-	        };
-	        //$(document).trigger("message-console-log", [result.error, jGrowlOpts, true, true]);
-	        return;
-        }
-        //if (this.id === result.id && this.difference == 0) {
-        //    return;
-        //}
         $.extend(this, result);
 
         // Reference pixel offset at the original JP2 image scale (with respect to top-left origin)
         this.offsetX =   parseFloat((this.refPixelX - (this.width  / 2)).toPrecision(8));
         this.offsetY = - parseFloat((this.refPixelY - (this.height / 2)).toPrecision(8));
+
+        // Image details in Helioprojective coordinates
+        let arcWidth = this.width * this.scale;
+        let arcHeight = this.height * this.scale;
+        let arcOffset = { x: this.offsetX * this.scale, y: this.offsetY * this.scale };
+        this.coordinate = {
+            width: arcWidth,
+            height: arcHeight,
+            x: -(arcWidth / 2) - arcOffset.x,
+            y: -(arcHeight / 2) - arcOffset.y,
+        };
 
         this._onChange();
     },

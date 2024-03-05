@@ -93,9 +93,13 @@ var HelioviewerTileLayer = TileLayer.extend(
         // Remove the previous tile that existed at this layer.
         this.removeFromViewer();
         // Add the new tile to the viewer.
+        console.log(this.image.coordinate);
         this.viewer.addTiledImage({
             tileSource: imageUrl,
-            index: this.order
+            index: this.order,
+            x: this.image.coordinate.x,
+            y: this.image.coordinate.y,
+            width: this.image.coordinate.width
         });
 
         if (this.visible) {
