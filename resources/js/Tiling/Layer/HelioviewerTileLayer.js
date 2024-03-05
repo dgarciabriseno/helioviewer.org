@@ -63,10 +63,19 @@ var HelioviewerTileLayer = TileLayer.extend(
         return helioviewer.serverSettings.imageServer + this.image.file + "/info.json";
     },
 
+    /**
+     * Removes the tile from the DOM and Image Viewer
+     * TODO(Dragon): The DOM version should be removed so only the viewer is done here.
+     */
     remove: function() {
         this.domNode.remove();
+    },
+
+    removeFromViewer: function () {
         let layer = this.viewer.world.getItemAt(this.order);
-        this.viewer.world.removeItem(layer);
+        if (layer) {
+            this.viewer.world.removeItem(layer);
+        }
     },
 
     /**
@@ -81,6 +90,9 @@ var HelioviewerTileLayer = TileLayer.extend(
 
         // Add this image to the openseadragon viewport
         let imageUrl = this.getImageUrl();
+        // Remove the previous tile that existed at this layer.
+        this.removeFromViewer();
+        // Add the new tile to the viewer.
         this.viewer.addTiledImage({
             tileSource: imageUrl,
             index: this.order

@@ -107,7 +107,6 @@ var HelioviewerTileLayerManager = TileLayerManager.extend(
         // Pull off the next layer on the queue
         while (!queueChoiceIsValid) {
             next = queue[i] || defaultLayer;
-            var date = new Date(+new Date());
             var dateDiffObj = new Date($('#date').val() +' '+$('#time').val());
 			var dateDiff = new Date(dateDiffObj - 60*60*1000);
             params = parseLayerString(next + ',1,100,0,60,1,'+dateDiff.toDateString()+' '+dateDiff.toTimeString());
