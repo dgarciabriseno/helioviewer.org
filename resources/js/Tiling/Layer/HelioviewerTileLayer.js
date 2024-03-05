@@ -42,7 +42,7 @@ var HelioviewerTileLayer = TileLayer.extend(
             name, visible, opacity, difference, diffCount, diffTime, baseDiffTime, id);
 
         this.id = id;
-        this.order = order;
+        this.order = -order;
 
         this._setupEventHandlers();
 
@@ -69,6 +69,7 @@ var HelioviewerTileLayer = TileLayer.extend(
      */
     remove: function() {
         this.domNode.remove();
+        this.removeFromViewer();
     },
 
     removeFromViewer: function () {
@@ -93,7 +94,6 @@ var HelioviewerTileLayer = TileLayer.extend(
         // Remove the previous tile that existed at this layer.
         this.removeFromViewer();
         // Add the new tile to the viewer.
-        console.log(this.image.coordinate);
         this.viewer.addTiledImage({
             tileSource: imageUrl,
             index: this.order,
