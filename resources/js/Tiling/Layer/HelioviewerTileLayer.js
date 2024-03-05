@@ -32,7 +32,7 @@ var HelioviewerTileLayer = TileLayer.extend(
     init: function (index, date, tileSize, viewportScale, tileVisibilityRange,
         hierarchy, sourceId, name, visible, opacity, difference, diffCount, diffTime, baseDiffTime, layeringOrder, order, viewer) {
 
-        // Ref to openseadragon viewer
+        /** @type {OpenSeadragon.Viewer} */
         this.viewer = viewer;
 
 		// Create a random id which can be used to link tile layer with its corresponding tile layer accordion entry
@@ -42,7 +42,7 @@ var HelioviewerTileLayer = TileLayer.extend(
             name, visible, opacity, difference, diffCount, diffTime, baseDiffTime, id);
 
         this.id = id;
-        this.order = -order;
+        this.order = order;
 
         this._setupEventHandlers();
 
@@ -73,9 +73,8 @@ var HelioviewerTileLayer = TileLayer.extend(
     },
 
     removeFromViewer: function () {
-        let layer = this.viewer.world.getItemAt(this.order);
-        if (layer) {
-            this.viewer.world.removeItem(layer);
+        if (this.layer) {
+            this.viewer.world.removeItem(this.layer);
         }
     },
 
@@ -91,15 +90,22 @@ var HelioviewerTileLayer = TileLayer.extend(
 
         // Add this image to the openseadragon viewport
         let imageUrl = this.getImageUrl();
-        // Remove the previous tile that existed at this layer.
+
+        // Remove the old item from the viewer
+        // Note, addTiledImage has a replace option, but this only works if
+        // if the image has already been added and is being replaced. It
+        // asserts when used for adding a layer that isn't already there.
         this.removeFromViewer();
         // Add the new tile to the viewer.
         this.viewer.addTiledImage({
             tileSource: imageUrl,
-            index: this.order,
+            index: -this.order,
             x: this.image.coordinate.x,
             y: this.image.coordinate.y,
-            width: this.image.coordinate.width
+            width: this.image.coordinate.width,
+            success: (e) => {
+                this.layer = e.item;
+            }
         });
 
         if (this.visible) {
@@ -205,5 +211,12 @@ var HelioviewerTileLayer = TileLayer.extend(
         $(this.domNode).bind('get-tile', $.proxy(this.getTile, this));
         $(this.domNode).bind('preload-tile', $.proxy(this.preloadTile, this));
         $(document).bind('toggle-layer-visibility', $.proxy(this.toggleVisibility, this));
+    },
+
+    setLayerOrder: function (order) {
+        this.order = order;
+        if (this.layer) {
+            this.viewer.world.setItemIndex(this.layer, this.viewer.world.getItemCount() - order);
+        }
     }
 });

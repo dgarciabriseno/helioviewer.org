@@ -114,7 +114,8 @@ var TileLayerManager = LayerManager.extend(
         $.each(idOrder, function(i, id){
 	        $.each(self._layers, function(j, layer){
 		        if(layer.id == id){
-			        self._layers[j].order = parseInt(i)+1;
+                    let order = parseInt(i)+1;
+                    self._layers[j].setLayerOrder(order);
 		        }
 	        });
         });
