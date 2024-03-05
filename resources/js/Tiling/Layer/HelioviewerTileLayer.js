@@ -43,7 +43,7 @@ var HelioviewerTileLayer = TileLayer.extend(
 
         this.id = id;
         this.order = order;
-        this.opacity = opacity / 100;
+        this.opacity = opacity;
 
         this._setupEventHandlers();
 
@@ -104,7 +104,7 @@ var HelioviewerTileLayer = TileLayer.extend(
             x: this.image.coordinate.x,
             y: this.image.coordinate.y,
             width: this.image.coordinate.width,
-            opacity: this.opacity,
+            opacity: this.opacity / 100,
             success: (e) => {
                 this.layer = e.item;
             }
@@ -228,8 +228,19 @@ var HelioviewerTileLayer = TileLayer.extend(
      */
     setOpacity: function (opacity) {
         if (this.layer) {
-            this.opacity = opacity / 100;
-            this.layer.setOpacity(opacity / 100);
+            this.opacity = opacity;
+            if (this.visible) {
+                this.layer.setOpacity(opacity / 100);
+            }
         }
-    }
+    },
+
+    setVisibility: function (visible) {
+        this.visible = visible;
+        if (!visible) {
+            this.layer.setOpacity(0);
+        } else {
+            this.layer.setOpacity(this.opacity / 100);
+        }
+    },
 });
