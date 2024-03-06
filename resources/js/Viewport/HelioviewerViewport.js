@@ -39,14 +39,9 @@ var HelioviewerViewport = Class.extend(
         this.viewer = OpenSeadragon({
             id: 'openseadragon-viewport',
             crossOriginPolicy: "Anonymous",
-            prefixUrl: "https://cdn.jsdelivr.net/npm/openseadragon@4.1/build/openseadragon/images/"
+            prefixUrl: "https://cdn.jsdelivr.net/npm/openseadragon@4.1/build/openseadragon/images/",
+            subPixelRoundingForTransparency: OpenSeadragon.SUBPIXEL_ROUNDING_OCCURRENCES.ALWAYS
         });
-        this.viewer.setFilterOptions({
-            filters: {
-                // Custom processor which makes fully black pixels transparent.
-                processors: [TransparentBlackPixels]
-            }
-        })
         this.domNode   = $(this.id);
         this.outerNode = $(this.container);
 

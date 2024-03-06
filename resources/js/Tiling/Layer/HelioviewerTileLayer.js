@@ -84,15 +84,18 @@ var HelioviewerTileLayer = TileLayer.extend(
     /**
      * onLoadImage
      */
-    onLoadImage: function () {
+    onLoadImage: async function () {
         this.loaded = true;
         this.layeringOrder = this.image.layeringOrder;
+        this.sourceId = this.image.sourceId;
 
         this._loadStaticProperties();
         this._updateDimensions();
 
         // Add this image to the openseadragon viewport
         let imageUrl = this.getImageUrl();
+        let iiifData = (await (await fetch(imageUrl)).json());
+        iiifData["preferredFormats"] = ["png"];
 
         // Remove the old item from the viewer
         // Note, addTiledImage has a replace option, but this only works if
@@ -101,7 +104,8 @@ var HelioviewerTileLayer = TileLayer.extend(
         this.removeFromViewer();
         // Add the new tile to the viewer.
         this.viewer.addTiledImage({
-            tileSource: imageUrl,
+            tileSource: iiifData,
+            url: imageUrl,
             index: -this.order,
             x: this.image.coordinate.x,
             y: this.image.coordinate.y,
@@ -151,16 +155,19 @@ var HelioviewerTileLayer = TileLayer.extend(
     },
 
     _applyColorTable: function () {
-        console.log(this.sourceId);
         if (this.sourceId in ColorMaps) {
+            let processors = [
+                OpenSeadragon.Filters.COLORMAP(ColorMaps[this.sourceId], 128)
+            ];
+            if (ApplyTransparency.indexOf(this.sourceId) != -1) {
+                processors.push(TransparentBlackPixels);
+            }
             // Get existing filters
             let filters = this.viewer.getFilters();
             // Add new filter for this layer
-            filters.push({
-                items: this.layer,
-                processors: [
-                    OpenSeadragon.Filters.COLORMAP(ColorMaps[this.sourceId], 128)
-                ]
+            filters.unshift({
+                items: [this.layer],
+                processors: processors
             });
             // Re-apply filters
             this.viewer.setFilterOptions({
