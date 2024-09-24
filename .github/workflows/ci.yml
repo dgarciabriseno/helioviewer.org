@@ -36,12 +36,16 @@ jobs:
   test-server:
     runs-on: ubuntu-latest
     steps:
+    - name: Get hostname
+      run: hostname
     - name: Listen for connections
       run: nc -l -p 12345
 
   test-client:
     runs-on: ubuntu-latest
     steps:
+    - name: Wait for server job to be running
+      run: sleep 60
     - name: Connect to server
       run: nc test-server 12345
 
